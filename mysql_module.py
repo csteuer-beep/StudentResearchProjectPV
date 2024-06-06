@@ -2,7 +2,6 @@ import mysql.connector
 from mysql.connector import Error
 
 
-
 def connect_to_database():
     try:
         connection = mysql.connector.connect(
@@ -27,10 +26,21 @@ def send_to_mysql(values, insert_query):
 
     try:
         cursor = connection.cursor()
-        #insert_query = "INSERT INTO pycharm_table (FechaHora, G, Tc, I, V, P, Inst) VALUES (%s, %s, %s, %s, %s, %s, %s)" #Raw data insert query
-        cursor.execute(insert_query, values)
-        connection.commit()
-        print("SQL erfolgreich")
+
+        # Check for existing entry with the same FechaHora and Inst
+        check_query = "SELECT COUNT(*) FROM pycharm_table WHERE FechaHora = %s AND Inst = %s"
+        cursor.execute(check_query, (values[0], values[6]))
+        result = cursor.fetchone()
+
+        if result[0] > 0:
+            print("Entry with the same FechaHora and Inst already exists")
+        else:
+            # Insert the new entry
+            #insert_query = "INSERT INTO pycharm_table (FechaHora, G, Tc, I, V, P, Inst) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            cursor.execute(insert_query, values)
+            connection.commit()
+            print("SQL erfolgreich")
+
     except Error as e:
         print(f"Error during database operation: {e}")
     finally:
