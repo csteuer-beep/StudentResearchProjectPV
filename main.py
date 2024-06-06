@@ -1,25 +1,18 @@
 import json
 import paho.mqtt.client as mqtt
-import mysql.connector
 import subprocess
 
+import mysql_module
+
 # MQTT-Broker-Einstellungen
-broker_address = "localhost"  # Hier die IP-Adresse oder den Hostnamen deines MQTT-Brokers einfügen
+broker_address = "192.168.56.1"  # Hier die IP-Adresse oder den Hostnamen deines MQTT-Brokers einfügen
 broker_port = 1883  # Standard MQTT-Port
 
-# Verbindung zur MySQL-Datenbank herstellen
-connection = mysql.connector.connect(
-    host="localhost",  # Hostname des MySQL-Servers
-    user="root",  # Benutzername für die Verbindung zur Datenbank
-    password="IoTpw2024",  # Passwort für die Verbindung zur Datenbank
-    database="test_jupyter_input"  # Name der Datenbank
-)
 
-# Cursor erstellen, um SQL-Abfragen auszuführen
-cursor = connection.cursor()
+
 
 # Command für die Ausführung
-command = "websocat ws://localhost:8765"
+command = "websocat ws://192.168.56.1:8765"
 
 
 
@@ -41,15 +34,7 @@ def execute_bash_command(comm, message):
     # return process #output.decode(), error.decode()
 
 
-def send_to_mysql(values):
-    # SQL-Abfrage zum Einfügen eines Eintrags in die Tabelle
-    insert_query = "INSERT INTO jupyter_table (FechaHora, G, Tc, I, V, P, Inst) VALUES (%s, %s, %s, %s, %s, %s, %s)"
 
-    # SQL-Abfrage mit den Werten ausführen
-    cursor.execute(insert_query, values)
-
-    # Änderungen in der Datenbank bestätigen
-    connection.commit()
 
 #values = (fechahora, G, Tc, I, V, P, Inst)
 def check_threshold(values):
@@ -82,7 +67,7 @@ def on_message(client, userdata, message):
         Inst = received_json.get("Inst", None)
         # Werte für die zu füllenden Spalten
         values = (fechahora, G, Tc, I, V, P, Inst)
-        send_to_mysql(values)
+        mysql_module.send_to_mysql(values, "INSERT INTO pycharm_table (FechaHora, G, Tc, I, V, P, Inst) VALUES (%s, %s, %s, %s, %s, %s, %s)")
         check_threshold(values)
 
         # Hier kannst du die weiteren Schritte für die Verarbeitung der JSON-Daten einfügen
@@ -90,7 +75,7 @@ def on_message(client, userdata, message):
         print("Empfangene Nachricht:", received_json)
 
         # output, error = (
-        execute_bash_command(command, "test")
+        #execute_bash_command(command, "test")
         # print("Output:", output)
         # print("Error:", error)
         # Verarbeitung der JSON-Daten ...
@@ -110,6 +95,5 @@ client.subscribe(topic)
 # Endlosschleife, um eingehende Nachrichten zu verarbeiten
 client.loop_forever()
 
-# Verbindung schließen
-cursor.close()
-connection.close()
+
+
