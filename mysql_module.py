@@ -47,7 +47,7 @@ def send_to_mysql_raw(values, insert_query):
         if connection.is_connected():
             cursor.close()
             connection.close()
-            print("Database connection closed")
+            print("Database connection closed(send_to_mysql_raw)")
 
 def insert_to_mysql_alert(values, insert_query):
     connection = connect_to_database()
@@ -69,4 +69,68 @@ def insert_to_mysql_alert(values, insert_query):
         if connection.is_connected():
             cursor.close()
             connection.close()
-            print("Database connection closed")
+            print("Database connection closed(insert_to_mysql_alert)")
+
+def get_open_alert_id(inst, parameter):
+    connection = connect_to_database()
+    if connection is None:
+        print("Failed to establish database connection")
+        return None
+
+    try:
+        cursor = connection.cursor()
+
+        # SQL-Abfrage, um die AlertID für offene Alerts mit übereinstimmendem Inst- und Parameter-Wert abzurufen
+        query = "SELECT AlertID FROM alerts WHERE SensorID = %s AND Parameter = %s AND AlertStatus = 'Open'"
+        cursor.execute(query, (inst, parameter))
+        result = cursor.fetchall() #fetchone()
+
+        if result:
+            alert_id = str(result[0])
+            alert_id = alert_id.strip("(),'\"")
+            print("alertid: ", alert_id)
+            return alert_id
+        else:
+            print("Kein offener Alert mit übereinstimmendem Inst- und Parameter-Wert gefunden")
+            return None
+
+    except mysql.connector.Error as e:
+        print(f"Fehler bei der Datenbankabfrage: {e}")
+        return None
+
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("Database connection closed(get_open_alert_id)")
+
+
+    #update_field("column_name", "table_name", "new_value")
+    #update_field("column_name", "table_name", "new_value", "condition_column = 'condition_value'")
+def update_field(table, field, new_value, condition_field=None, condition_value=None):
+    connection = connect_to_database()
+    if connection is None:
+        print("Failed to establish database connection")
+        return
+
+    try:
+        cursor = connection.cursor()
+
+        if condition_field and condition_value:
+            query = f"UPDATE {table} SET {field} = %s WHERE {condition_field} = %s"
+            cursor.execute(query, (new_value, condition_value))
+        else:
+            query = f"UPDATE {table} SET {field} = %s"
+            cursor.execute(query, (new_value,))
+
+        connection.commit()
+        print(f"Field {field} in table {table} updated successfully")
+
+    except mysql.connector.Error as e:
+        print(f"Error during database operation(update_field): {e}")
+
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("Database connection closed(update_field)")
