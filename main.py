@@ -43,7 +43,7 @@ def execute_bash_command(comm, message):
 
 def send_to_mysql(values):
     # SQL-Abfrage zum Einfügen eines Eintrags in die Tabelle
-    insert_query = "INSERT INTO pycharm_table (FechaHora, G, Tc, I, V, P, Inst) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    insert_query = "INSERT INTO jupyter_table (FechaHora, G, Tc, I, V, P, Inst) VALUES (%s, %s, %s, %s, %s, %s, %s)"
 
     # SQL-Abfrage mit den Werten ausführen
     cursor.execute(insert_query, values)
