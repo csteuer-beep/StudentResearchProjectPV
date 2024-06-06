@@ -18,7 +18,7 @@ def connect_to_database():
         return None
 
 
-def send_to_mysql(values, insert_query):
+def send_to_mysql_raw(values, insert_query):
     connection = connect_to_database()
     if connection is None:
         print("Failed to establish database connection")
@@ -42,10 +42,31 @@ def send_to_mysql(values, insert_query):
             print("SQL erfolgreich")
 
     except Error as e:
-        print(f"Error during database operation: {e}")
+        print(f"Error during database operation(raw): {e}")
     finally:
         if connection.is_connected():
             cursor.close()
             connection.close()
             print("Database connection closed")
 
+def insert_to_mysql_alert(values, insert_query):
+    connection = connect_to_database()
+    if connection is None:
+        print("Failed to establish database connection")
+        return
+
+    try:
+        cursor = connection.cursor()
+
+        # Insert the new entry
+        cursor.execute(insert_query, values)
+        connection.commit()
+        print("SQL erfolgreich")
+
+    except Error as e:
+        print(f"Error during database operation(alert): {e}")
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("Database connection closed")
