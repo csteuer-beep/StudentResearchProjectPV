@@ -1,6 +1,11 @@
 import json
 import paho.mqtt.client as mqtt
 import mysql.connector
+import subprocess
+
+# MQTT-Broker-Einstellungen
+broker_address = "localhost"  # Hier die IP-Adresse oder den Hostnamen deines MQTT-Brokers einfügen
+broker_port = 1883  # Standard MQTT-Port
 
 # Verbindung zur MySQL-Datenbank herstellen
 connection = mysql.connector.connect(
@@ -10,13 +15,35 @@ connection = mysql.connector.connect(
     database="test_jupyter_input"  # Name der Datenbank
 )
 
-
 # Cursor erstellen, um SQL-Abfragen auszuführen
+cursor = connection.cursor()
 
-def sendtomysql(values):
-    cursor = connection.cursor()
+# Command für die Ausführung
+command = "websocat ws://localhost:8765"
+
+
+
+
+def execute_bash_command(comm, message):
+    # Execute the command
+    process = subprocess.Popen(comm, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # Send a message
+    process.stdin.write(message.encode())
+    process.stdin.flush()
+
+    # Optionally, you can read the output
+    # output, error = process.communicate()
+
+    process.stdin.close()
+
+    # Return the output and error if any
+    # return process #output.decode(), error.decode()
+
+
+def send_to_mysql(values):
     # SQL-Abfrage zum Einfügen eines Eintrags in die Tabelle
-    insert_query = "INSERT INTO jupyter_table (FechaHora, G, Tc, I, V, P, Inst) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    insert_query = "INSERT INTO pycharm_table (FechaHora, G, Tc, I, V, P, Inst) VALUES (%s, %s, %s, %s, %s, %s, %s)"
 
     # SQL-Abfrage mit den Werten ausführen
     cursor.execute(insert_query, values)
@@ -24,7 +51,13 @@ def sendtomysql(values):
     # Änderungen in der Datenbank bestätigen
     connection.commit()
 
-    cursor.close()
+#values = (fechahora, G, Tc, I, V, P, Inst)
+def check_threshold(values):
+    thresholds = (12, 18, 22, 20, 30)
+
+    for i in range(5):  # Assuming you want to iterate over the first 5 elements of values
+        if values[i+1] > thresholds[i]:
+            print(f"Value at index {i}: {values[i]} exceeds threshold at index {i}: {thresholds[i]}")
 
 
 # Funktion zum Verarbeiten eingehender MQTT-Nachrichten
@@ -49,17 +82,19 @@ def on_message(client, userdata, message):
         Inst = received_json.get("Inst", None)
         # Werte für die zu füllenden Spalten
         values = (fechahora, G, Tc, I, V, P, Inst)
-        sendtomysql(values)
+        send_to_mysql(values)
+        check_threshold(values)
 
         # Hier kannst du die weiteren Schritte für die Verarbeitung der JSON-Daten einfügen
         # Zum Beispiel:
         print("Empfangene Nachricht:", received_json)
+
+        # output, error = (
+        execute_bash_command(command, "test")
+        # print("Output:", output)
+        # print("Error:", error)
         # Verarbeitung der JSON-Daten ...
 
-
-# MQTT-Broker-Einstellungen
-broker_address = "localhost"  # Hier die IP-Adresse oder den Hostnamen deines MQTT-Brokers einfügen
-broker_port = 1883  # Standard MQTT-Port
 
 # MQTT-Client initialisieren
 client = mqtt.Client()
@@ -76,5 +111,5 @@ client.subscribe(topic)
 client.loop_forever()
 
 # Verbindung schließen
-
+cursor.close()
 connection.close()
