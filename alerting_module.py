@@ -1,4 +1,75 @@
 # alert_module.py
+# alert_module.py
+
+import datetime
+import uuid
+import mysql_module
+
+def get_parameter_name(index):
+    parameters = ["", "G", "Tc", "I", "V", "P"]
+    return parameters[index]
+
+def handle_existing_alert(alert_id, timestamp, value, closing=False):
+    if closing:
+        mysql_module.update_field("alerts", "AlertStatus", "Closed", "AlertID", alert_id)
+        mysql_module.update_field("alerts", "Currentvalue", value, "AlertID", alert_id)
+    else:
+        mysql_module.update_field("alerts", "LastOccurrenceTimestamp", timestamp, "AlertID", alert_id)
+        mysql_module.update_field("alerts", "Currentvalue", value, "AlertID", alert_id)
+
+def handle_new_alert(sensor_id, message, parameter, cuvalue, timestamp):
+    print("No open alert with matching instance and parameter value found")
+    send_alert_to_database(sensor_id, message, parameter, cuvalue, timestamp)
+
+def check_threshold(values):
+    thresholds = (12, 18, 2.5, 1.5, 30)
+    alerts = []
+    timestamp = values[0]
+
+    for i in range(1, 6):  # Start from index 1 to skip the first element (assuming it's the timestamp)
+        value = values[i]
+        if value is not None:
+            parameter = get_parameter_name(i)
+            message = f"Parameter {parameter}: {value} exceeds threshold {thresholds[i - 1]}"
+            alerts.append(message)
+            existing_alert = mysql_module.get_open_alert_id(values[6], parameter)
+
+            if value > thresholds[i - 1]:
+                if existing_alert is not None:
+                    print(f"An open alert with AlertID {existing_alert} already exists")
+                    handle_existing_alert(existing_alert, timestamp, value)
+                else:
+                    handle_new_alert(values[6], message, parameter, value, timestamp)
+            elif value < thresholds[i - 1]:
+                if existing_alert is not None:
+                    print(f"An open alert with AlertID {existing_alert} already exists")
+                    handle_existing_alert(existing_alert, timestamp, value, closing=True)
+
+    return alerts
+
+def send_alert_to_database(sensor_id, message, parameter, cuvalue, timestamp):
+    print("Timestamp before MySQL operation:", timestamp)
+    alert_id = generate_alert_id()
+    alert_type = "Threshold Exceeded"
+    alert_status = "Open"
+    first_occurrence_timestamp = timestamp
+    last_occurrence_timestamp = timestamp
+
+    print("Alert UUID:", alert_id)
+
+    insert_query = """
+    INSERT INTO alerts 
+    (AlertID, SensorID, Timestamp, AlertType, AlertMessage, AlertStatus, FirstOccurrenceTimestamp, LastOccurrenceTimestamp, Parameter, CurrentValue) 
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """
+    values = (alert_id, sensor_id, timestamp, alert_type, message, alert_status, first_occurrence_timestamp, last_occurrence_timestamp, parameter, cuvalue)
+    mysql_module.insert_to_mysql_alert(values, insert_query)
+
+def generate_alert_id():
+    return str(uuid.uuid4())
+
+
+'''
 import mysql_module
 import datetime
 
@@ -108,4 +179,4 @@ def generate_alert_id():
     # a UUID or a combination of timestamp and some random number for AlertID.
     # Here, I'll generate a UUID as an example:
     import uuid
-    return str(uuid.uuid4())
+    return str(uuid.uuid4()) '''
