@@ -1,9 +1,12 @@
 # alert_module.py
-# alert_module.py
-
+import asyncio
 import datetime
 import uuid
+import json
+import bash_command_handler
 import mysql_module
+
+
 
 def get_parameter_name(index):
     parameters = ["", "G", "Tc", "I", "V", "P"]
@@ -22,7 +25,8 @@ def handle_new_alert(sensor_id, message, parameter, cuvalue, timestamp):
     send_alert_to_database(sensor_id, message, parameter, cuvalue, timestamp)
 
 def check_threshold(values):
-    thresholds = (12, 18, 2.5, 1.5, 30)
+    from main import client
+    thresholds = (20, 20, 20, 20, 20)
     alerts = []
     timestamp = values[0]
 
@@ -30,22 +34,42 @@ def check_threshold(values):
         value = values[i]
         if value is not None:
             parameter = get_parameter_name(i)
-            message = f"Parameter {parameter}: {value} exceeds threshold {thresholds[i - 1]}"
-            alerts.append(message)
-            existing_alert = mysql_module.get_open_alert_id(values[6], parameter)
+            if value > thresholds[i - 1]:  # Check if value exceeds threshold
+                message = f"Parameter {parameter}: {value} exceeds threshold {thresholds[i - 1]}"
+                websocket_message = generate_alertjson(parameter, thresholds[i - 1], message, value, timestamp, values[6])
+                alerts.append(message)
+                print(alerts)
+                existing_alert = mysql_module.get_open_alert_id(values[6], parameter)
 
-            if value > thresholds[i - 1]:
                 if existing_alert is not None:
                     print(f"An open alert with AlertID {existing_alert} already exists")
                     handle_existing_alert(existing_alert, timestamp, value)
                 else:
                     handle_new_alert(values[6], message, parameter, value, timestamp)
-            elif value < thresholds[i - 1]:
+
+                asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
+            elif value < thresholds[i - 1]:  # Check if value falls below threshold
+                message = f"Parameter {parameter}: {value} is below threshold {thresholds[i - 1]}"
+                alerts.append(message)
+                print(alerts)
+                existing_alert = mysql_module.get_open_alert_id(values[6], parameter)
+
                 if existing_alert is not None:
                     print(f"An open alert with AlertID {existing_alert} already exists")
                     handle_existing_alert(existing_alert, timestamp, value, closing=True)
-
     return alerts
+
+def generate_alertjson(parameter, treshold, message, value, timestamp, inst ):
+    data = {
+        "Timestamp": timestamp,
+        "Parameter": parameter,
+        "Treshold": treshold,
+        "AlertMessage": message,
+        "CurrentValue": value,
+        "Inst": inst
+    }
+
+    return json.dumps(data)
 
 def send_alert_to_database(sensor_id, message, parameter, cuvalue, timestamp):
     print("Timestamp before MySQL operation:", timestamp)
@@ -64,6 +88,8 @@ def send_alert_to_database(sensor_id, message, parameter, cuvalue, timestamp):
     """
     values = (alert_id, sensor_id, timestamp, alert_type, message, alert_status, first_occurrence_timestamp, last_occurrence_timestamp, parameter, cuvalue)
     mysql_module.insert_to_mysql_alert(values, insert_query)
+
+
 
 def generate_alert_id():
     return str(uuid.uuid4())
