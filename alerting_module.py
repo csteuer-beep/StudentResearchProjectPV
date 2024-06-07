@@ -3,8 +3,12 @@ import asyncio
 import datetime
 import uuid
 import json
-import bash_command_handler
+import websocket_handler
 import mysql_module
+
+
+uri = "ws://localhost:8765/alerts"
+client = websocket_handler.WebSocketClient(uri)
 
 
 
@@ -25,7 +29,7 @@ def handle_new_alert(sensor_id, message, parameter, cuvalue, timestamp):
     send_alert_to_database(sensor_id, message, parameter, cuvalue, timestamp)
 
 def check_threshold(values):
-    from main import client
+    asyncio.get_event_loop().run_until_complete(client.connect())
     thresholds = (20, 20, 20, 20, 20)
     alerts = []
     timestamp = values[0]
@@ -57,13 +61,15 @@ def check_threshold(values):
                 if existing_alert is not None:
                     print(f"An open alert with AlertID {existing_alert} already exists")
                     handle_existing_alert(existing_alert, timestamp, value, closing=True)
+
+
     return alerts
 
-def generate_alertjson(parameter, treshold, message, value, timestamp, inst ):
+def generate_alertjson(parameter, threshold, message, value, timestamp, inst ):
     data = {
         "Timestamp": timestamp,
         "Parameter": parameter,
-        "Treshold": treshold,
+        "Threshold": threshold,
         "AlertMessage": message,
         "CurrentValue": value,
         "Inst": inst
