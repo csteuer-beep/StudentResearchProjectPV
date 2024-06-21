@@ -1,4 +1,46 @@
 # mqtt_module.py
+
+# mqtt_module.py
+import json
+import paho.mqtt.client as mqtt
+
+
+def process_message(received_json):
+    fechahora = received_json.get("FechaHora", None)
+    G = received_json.get("G", None)
+    Tc = received_json.get("Tc", None)
+    I = received_json.get("I", None)
+    V = received_json.get("V", None)
+    P = received_json.get("P", None)
+    Inst = received_json.get("Inst", None)
+    values = (fechahora, G, Tc, I, V, P, Inst)
+    return values
+
+
+def on_message(client, userdata, message):
+    received_message = message.payload.decode('utf-8')
+    json_objects = received_message.strip().split('\n')
+    values_list = []
+
+    for json_str in json_objects:
+        received_json = json.loads(json_str)
+        print("Received message:", received_json)
+        values = process_message(received_json)
+        values_list.append(values)
+
+    # Pass the processed values to the callback function
+    userdata['callback'](values_list)
+
+
+def start_mqtt_client(broker_address, broker_port, topic, callback):
+    client = mqtt.Client(userdata={'callback': callback})
+    client.on_message = on_message
+    client.connect(broker_address, broker_port)
+    client.subscribe(topic)
+    client.loop_forever()
+
+
+'''
 import json
 import paho.mqtt.client as mqtt
 import mysql_module
@@ -54,4 +96,4 @@ def start_mqtt_client(broker_address, broker_port, topic):
     client.on_message = on_message
     client.connect(broker_address, broker_port)
     client.subscribe(topic)
-    client.loop_forever()
+    client.loop_forever() '''
