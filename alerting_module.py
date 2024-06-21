@@ -7,7 +7,7 @@ import websocket_handler
 import mysql_module
 
 
-uri = "ws://localhost:8765/alerts"
+uri = "ws://192.168.56.1:8765/alerts"
 client = websocket_handler.WebSocketClient(uri)
 
 
@@ -51,7 +51,7 @@ def check_threshold(values):
                 else:
                     handle_new_alert(values[6], message, parameter, value, timestamp)
 
-                asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
+               # asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
             elif value < thresholds[i - 1]:  # Check if value falls below threshold
                 message = f"Parameter {parameter}: {value} is below threshold {thresholds[i - 1]}"
                 alerts.append(message)

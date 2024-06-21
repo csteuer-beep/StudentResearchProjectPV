@@ -4,6 +4,7 @@ import paho.mqtt.client as mqtt
 import mysql_module
 import alerting_module
 
+
 def process_message(received_json):
     fechahora = received_json.get("FechaHora", None)
     G = received_json.get("G", None)
@@ -17,7 +18,9 @@ def process_message(received_json):
 
 def on_message(client, userdata, message):
     # Nachricht im JSON-Format empfangen
+
     received_message = message.payload.decode('utf-8')
+
 
     # Die Nachricht in separate JSON-Objekte aufteilen (Annahme: Nachrichten sind durch Zeilenumbrüche getrennt)
     json_objects = received_message.strip().split('\n')
@@ -36,14 +39,15 @@ def on_message(client, userdata, message):
         print("Timestamp before MySQL operation:", values[0])
         # Hier kannst du die weiteren Schritte für die Verarbeitung der JSON-Daten einfügen
 
-        # Zum Beispiel:
-
 
         alerts = alerting_module.check_threshold(values)
         print(alerts)
 
-
         # check_threshold(values) # Assuming you have a check_threshold function
+
+def get_message(self):
+    return self.received_message
+
 
 def start_mqtt_client(broker_address, broker_port, topic):
     client = mqtt.Client()

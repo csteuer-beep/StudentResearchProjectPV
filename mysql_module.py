@@ -5,7 +5,7 @@ from mysql.connector import Error
 def connect_to_database():
     try:
         connection = mysql.connector.connect(
-            host="localhost", #"192.168.56.1",  # Hostname des MySQL-Servers
+            host="192.168.56.1", #"192.168.56.1",  # Hostname des MySQL-Servers
             user="server",  # Benutzername für die Verbindung zur Datenbank
             password="IoTpw2024!",  # Passwort für die Verbindung zur Datenbank
             database="test_jupyter_input"  # Name der Datenbank
