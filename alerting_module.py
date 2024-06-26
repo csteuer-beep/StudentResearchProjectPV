@@ -18,11 +18,11 @@ def get_parameter_name(index):
 
 def handle_existing_alert(alert_id, timestamp, value, closing=False):
     if closing:
-        mysql_module.update_field("alerts", "AlertStatus", "Closed", "AlertID", alert_id)
-        mysql_module.update_field("alerts", "Currentvalue", value, "AlertID", alert_id)
+        mysql_module.update_field("Alerts", "AlertStatus", "Closed", "AlertID", alert_id)
+        mysql_module.update_field("Alerts", "Currentvalue", value, "AlertID", alert_id)
     else:
-        mysql_module.update_field("alerts", "LastOccurrenceTimestamp", timestamp, "AlertID", alert_id)
-        mysql_module.update_field("alerts", "Currentvalue", value, "AlertID", alert_id)
+        mysql_module.update_field("Alerts", "LastOccurrenceTimestamp", timestamp, "AlertID", alert_id)
+        mysql_module.update_field("Alerts", "Currentvalue", value, "AlertID", alert_id)
 
 def handle_new_alert(sensor_id, message, parameter, cuvalue, timestamp):
     print("No open alert with matching instance and parameter value found")
@@ -88,7 +88,7 @@ def send_alert_to_database(sensor_id, message, parameter, cuvalue, timestamp):
     print("Alert UUID:", alert_id)
 
     insert_query = """
-    INSERT INTO alerts 
+    INSERT INTO Alerts 
     (AlertID, SensorID, Timestamp, AlertType, AlertMessage, AlertStatus, FirstOccurrenceTimestamp, LastOccurrenceTimestamp, Parameter, CurrentValue) 
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
