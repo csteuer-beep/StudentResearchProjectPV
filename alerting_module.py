@@ -51,7 +51,7 @@ def check_threshold(values):
                 else:
                     handle_new_alert(values[6], message, parameter, value, timestamp)
 
-               # asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
+                asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
             elif value < thresholds[i - 1]:  # Check if value falls below threshold
                 message = f"Parameter {parameter}: {value} is below threshold {thresholds[i - 1]}"
                 alerts.append(message)

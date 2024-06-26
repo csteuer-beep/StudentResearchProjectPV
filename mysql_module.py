@@ -8,7 +8,7 @@ def connect_to_database():
             host="192.168.56.1",
             user="server",
             password="IoTpw2024!",
-            database="test_jupyter_input"
+            database="solarplant_db"
         )
         if connection.is_connected():
             print("Connection established")
@@ -25,7 +25,7 @@ def send_to_mysql_raw(values, insert_query):
 
     try:
         cursor = connection.cursor()
-        check_query = "SELECT COUNT(*) FROM pycharm_table WHERE FechaHora = %s AND Inst = %s"
+        check_query = "SELECT COUNT(*) FROM raw_testing WHERE FechaHora = %s AND Inst = %s"
         cursor.execute(check_query, (values[0], values[6]))
         result = cursor.fetchone()
 
@@ -72,7 +72,7 @@ def get_open_alert_id(inst, parameter):
 
     try:
         cursor = connection.cursor()
-        query = "SELECT AlertID FROM alerts WHERE SensorID = %s AND Parameter = %s AND AlertStatus = 'Open'"
+        query = "SELECT AlertID FROM Alerts WHERE SensorID = %s AND Parameter = %s AND AlertStatus = 'Open'"
         cursor.execute(query, (inst, parameter))
         result = cursor.fetchall()
 
