@@ -5,7 +5,7 @@ from mysql.connector import Error
 def connect_to_database():
     try:
         connection = mysql.connector.connect(
-            host="192.168.56.1",
+            host="localhost", #192.168.56.1",
             user="server",
             password="IoTpw2024!",
             database="solarplant_db"
