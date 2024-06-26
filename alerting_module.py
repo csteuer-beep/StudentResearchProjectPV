@@ -7,7 +7,7 @@ import websocket_handler
 import mysql_module
 
 
-uri = "ws://localhost:8765/alerts"
+uri = "ws://192.168.56.1:8765/alerts"
 client = websocket_handler.WebSocketClient(uri)
 
 
