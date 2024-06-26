@@ -124,6 +124,58 @@ def update_field(table, field, new_value, condition_field=None, condition_value=
             print("Database connection closed(update_field)")
 
 
+def fetch_raw_data(month, year):
+    connection = connect_to_database()
+    if connection is None:
+        print("Failed to establish database connection")
+        return []
+
+    try:
+        cursor = connection.cursor(dictionary=True)
+        query = """
+            SELECT * FROM Solarplant_Raw 
+            WHERE MONTH(FechaHora) = %s AND YEAR(FechaHora) = %s
+        """
+        cursor.execute(query, (month, year))
+        result = cursor.fetchall()
+        return result
+
+    except Error as e:
+        print(f"Error during database operation(fetch_raw_data): {e}")
+        return []
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("Database connection closed(fetch_raw_data)")
+
+def insert_aggregated_data(values):
+    connection = connect_to_database()
+    if connection is None:
+        print("Failed to establish database connection")
+        return
+
+    try:
+        cursor = connection.cursor()
+        insert_query = """
+            INSERT INTO Solarplant_Ag_Data 
+            (EntryID, Inst, Year, Month, SumOfP, MeanOfP, MinOfP, MaxOfP, MaxOfTc, MinOfTc, MeanOfTc, 
+            MaxOfI, MinOfI, MeanOfI, MaxOfV, MinOfV, MeanOfV, MaxOfG, MinOfG, MeanOfG) 
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(insert_query, values)
+        connection.commit()
+        print("Aggregated data inserted successfully")
+
+    except Error as e:
+        print(f"Error during database operation(insert_aggregated_data): {e}")
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("Database connection closed(insert_aggregated_data)")
+
+
 '''import mysql.connector
 from mysql.connector import Error
 
