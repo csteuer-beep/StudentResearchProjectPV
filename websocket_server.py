@@ -1,5 +1,6 @@
 import asyncio
 import websockets
+import main_month_agg
 
 # Lists to keep track of connected clients
 alerts_clients = set()
@@ -45,6 +46,7 @@ async def main_handler(websocket, path):
         await test_handler(websocket, path)
     elif path == "/command":
         await command_handler(websocket, path)
+        print(f"Received on /command after handler")
     else:
         await websocket.send("Unknown path")
 
