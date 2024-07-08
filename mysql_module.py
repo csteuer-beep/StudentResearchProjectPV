@@ -32,6 +32,16 @@ def send_to_mysql_raw(values, insert_query):
         if result[0] > 0:
             print("Entry with the same FechaHora and Inst already exists")
         else:
+
+            if values[6] == "ETSIST1":
+                new_value = values[1] * 5.5 *(1-0.0035*(values[2]-25))
+            if values[6] == "ETSIST2":
+                new_value = values[1] * 4.8 * (1 - 0.0035 * (values[2] - 25))
+            new_value = new_value/1000
+            values_list = list(values)  # Step 1: Convert tuple to list
+            values_list.append(new_value)  # Step 2: Append new value
+            values = tuple(values_list)
+
             cursor.execute(insert_query, values)
             connection.commit()
             print("SQL erfolgreich")
