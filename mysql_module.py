@@ -17,7 +17,9 @@ def connect_to_database():
         print(f"Error: {e}")
         return None
 
+
 def send_to_mysql_raw(values, insert_query):
+
     connection = connect_to_database()
     if connection is None:
         print("Failed to establish database connection")
@@ -25,7 +27,7 @@ def send_to_mysql_raw(values, insert_query):
 
     try:
         cursor = connection.cursor()
-        check_query = "SELECT COUNT(*) FROM raw_testing WHERE FechaHora = %s AND Inst = %s"
+        check_query = "SELECT COUNT(*) FROM Solarplant_Raw WHERE FechaHora = %s AND Inst = %s"
         cursor.execute(check_query, (values[0], values[6]))
         result = cursor.fetchone()
 
@@ -33,18 +35,11 @@ def send_to_mysql_raw(values, insert_query):
             print("Entry with the same FechaHora and Inst already exists")
         else:
 
-            if values[6] == "ETSIST1":
-                new_value = values[1] * 5.5 *(1-0.0035*(values[2]-25))
-            if values[6] == "ETSIST2":
-                new_value = values[1] * 4.8 * (1 - 0.0035 * (values[2] - 25))
-            new_value = new_value/1000
-            values_list = list(values)  # Step 1: Convert tuple to list
-            values_list.append(new_value)  # Step 2: Append new value
-            values = tuple(values_list)
-
+            print("Tuple", values)
             cursor.execute(insert_query, values)
             connection.commit()
             print("SQL erfolgreich")
+            print("Data saved to DB:", values)
 
     except Error as e:
         print(f"Error during database operation(raw): {e}")

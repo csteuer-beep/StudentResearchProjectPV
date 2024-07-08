@@ -13,7 +13,17 @@ def process_message(received_json):
     V = received_json.get("V", None)
     P = received_json.get("P", None)
     Inst = received_json.get("Inst", None)
-    values = (fechahora, G, Tc, I, V, P, Inst)
+
+    new_value = 0
+    V = 0
+    if Inst == "etsist1":
+        V = 5.5
+    if Inst == "etsist2":
+        V = 4.8
+    new_value = G * V * (1 - 0.0035 * (Tc - 25))
+    performance = new_value / 1000
+
+    values = (fechahora, G, Tc, I, V, P, Inst, performance)
     return values
 
 
