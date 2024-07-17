@@ -4,7 +4,7 @@ import mysql_module
 
 def save_to_db(values_list):
     for values in values_list:
-        mysql_module.send_to_mysql_raw(values, "INSERT INTO Solarplant_Raw (FechaHora, G, Tc, I, V, P, Inst, Performance) VALUES (%s, %s, %s, %s, %s, %s, %s %s)")
+        mysql_module.send_to_mysql_raw(values, "INSERT INTO Solarplant_Raw (FechaHora, G, Tc, I, V, P, Inst, Performance, Loss) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
 
 if __name__ == "__main__":

@@ -22,8 +22,9 @@ def process_message(received_json):
         V = 4.8
     new_value = G * V * (1 - 0.0035 * (Tc - 25))
     performance = new_value / 1000
+    loss = max(0, P - performance)
 
-    values = (fechahora, G, Tc, I, V, P, Inst, performance)
+    values = (fechahora, G, Tc, I, V, P, Inst, performance, loss)
     return values
 
 
