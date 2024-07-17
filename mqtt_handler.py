@@ -22,7 +22,11 @@ def process_message(received_json):
         V = 4.8
     new_value = G * V * (1 - 0.0035 * (Tc - 25))
     performance = new_value / 1000
-    loss = max(0, P - performance)
+    try:
+        loss = max(0, P - performance) if P is not None else 0
+    except Exception as e:
+        loss = performance
+
 
     values = (fechahora, G, Tc, I, V, P, Inst, performance, loss)
     return values
