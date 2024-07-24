@@ -1,6 +1,5 @@
 # mqtt_module.py
-
-# mqtt_module.py
+from datetime import datetime, timedelta
 import json
 import paho.mqtt.client as mqtt
 
@@ -13,7 +12,30 @@ def process_message(received_json):
     V = received_json.get("V", None)
     P = received_json.get("P", None)
     Inst = received_json.get("Inst", None)
-    values = (fechahora, G, Tc, I, V, P, Inst)
+
+    if fechahora:
+        # Parse the date-time string into a datetime object
+        fechahora_dt = datetime.strptime(fechahora, "%Y-%m-%dT%H:%M:%S")
+        # Subtract 2 hours to convert from UTC+2 to UTC+0
+        fechahora_dt = fechahora_dt - timedelta(hours=2)
+        # Format back to string if needed, e.g., fechahora = fechahora_dt.strftime("%Y-%m-%dT%H:%M:%S")
+        fechahora = fechahora_dt.isoformat()
+
+    new_value = 0
+    V = 0
+    if Inst == "etsist1":
+        V = 5.5
+    if Inst == "etsist2":
+        V = 4.8
+    new_value = G * V * (1 - 0.0035 * (Tc - 25))
+    performance = new_value / 1000
+    try:
+        loss = max(0, P - performance) if P is not None else 0
+    except Exception as e:
+        loss = performance
+
+
+    values = (fechahora, G, Tc, I, V, P, Inst, performance, loss)
     return values
 
 
