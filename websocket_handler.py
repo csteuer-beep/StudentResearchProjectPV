@@ -8,8 +8,14 @@ class WebSocketClient:
         self.websocket = None
 
     async def connect(self):
-        self.websocket = await websockets.connect(self.uri)
-        print("WebSocket connection established.")
+        #self.websocket = await websockets.connect(self.uri)
+        #print("WebSocket connection established.")
+        try:
+            self.websocket = await websockets.connect(self.uri)
+            print("WebSocket connection established.")
+        except websockets.exceptions.ConnectionClosedError as e:
+            print(f"WebSocket connection closed unexpectedly during connection: {e}")
+            await self.connect()  # Retry connecting
 
     async def send_message(self, message):
         try:
