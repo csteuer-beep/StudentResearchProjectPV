@@ -4,10 +4,7 @@ from datetime import datetime, timedelta
 import json
 import paho.mqtt.client as mqtt
 import alerting_module
-import websocket_handler
-
-uri = "ws://localhost:8765/alerts" #"ws://192.168.56.1:8765/alerts"
-client = websocket_handler.WebSocketClient(uri)
+import os
 
 def process_message(received_json):
     fechahora = received_json.get("FechaHora", None)
@@ -71,3 +68,10 @@ def start_mqtt_client(broker_address, broker_port, topic, callback):
     client.subscribe(topic)
     client.loop_forever()
 
+
+def connection_exists(file_path):
+    return os.path.exists(file_path)
+
+def create_connection_file(file_path):
+    with open(file_path, 'w') as f:
+        f.write('connected')
