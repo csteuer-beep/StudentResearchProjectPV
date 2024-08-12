@@ -27,12 +27,12 @@ def process_message(received_json):
         fechahora = fechahora_dt.isoformat()
 
     new_value = 0
-    V = 0
+    vv = 0
     if Inst == "etsist1":
-        V = 5.5
+        vv = 5.5
     if Inst == "etsist2":
-        V = 4.8
-    new_value = G * V * (1 - 0.0035 * (Tc - 25))
+        vv = 4.8
+    new_value = G * vv * (1 - 0.0035 * (Tc - 25))
     performance = new_value / 1000
     try:
         loss = max(0, P - performance) if P is not None else 0
@@ -41,22 +41,25 @@ def process_message(received_json):
 
     values = (fechahora, G, Tc, I, V, P, Inst, performance, loss)
 
-    alert_value1 = 1 if G < 10 else 0
-    alert_value2 = 1 if abs((new_value - P) / new_value) > 0.25 else 0
-    # Simple threshold check for performance
-    performance_threshold = 20  # Example threshold value
-
-
+    alert_value1 = 1 if G is not None and G < 10 else 0
+    alert_value2 = 1 if P is not None and new_value != 0 and abs((new_value - P) / new_value) > 0.25 else 0
 
     if alert_value1 == 1 :
         message = f"G, Tc sensor is offline. G: {G} , Tc:  {Tc}"
         websocket_message = alerting_module.generate_alertjson("Sensor Offline", 1, message, G, fechahora,
                                                                Inst)
-        asyncio.get_event_loop().run_until_complete(client.connect())
-        asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
 
-        # Send alert to MySQL database
-        alerting_module.send_alert_to_database(Inst, message, "performance", performance, fechahora)
+        try:
+            asyncio.get_event_loop().run_until_complete(client.connect())
+            asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
+        except Exception as e:
+            print(f"WebSocket error: {e}")
+
+        try:
+            alerting_module.send_alert_to_database(Inst, message, "Sensor Offline", 0, fechahora)
+        except Exception as e:
+            print(f"MySQL error: {e}")
+
 
     return values
 
