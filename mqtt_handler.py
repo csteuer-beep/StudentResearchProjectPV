@@ -1,8 +1,13 @@
 # mqtt_module.py
+import asyncio
 from datetime import datetime, timedelta
 import json
 import paho.mqtt.client as mqtt
+import alerting_module
+import websocket_handler
 
+uri = "ws://localhost:8765/alerts" #"ws://192.168.56.1:8765/alerts"
+client = websocket_handler.WebSocketClient(uri)
 
 def process_message(received_json):
     fechahora = received_json.get("FechaHora", None)
@@ -34,8 +39,25 @@ def process_message(received_json):
     except Exception as e:
         loss = performance
 
-
     values = (fechahora, G, Tc, I, V, P, Inst, performance, loss)
+
+    alert_value1 = 1 if G < 10 else 0
+    alert_value2 = 1 if abs((new_value - P) / new_value) > 0.25 else 0
+    # Simple threshold check for performance
+    performance_threshold = 20  # Example threshold value
+
+
+
+    if alert_value1 == 1 :
+        message = f"G, Tc sensor is offline. G: {G} , Tc:  {Tc}"
+        websocket_message = alerting_module.generate_alertjson("Sensor Offline", 1, message, G, fechahora,
+                                                               Inst)
+        asyncio.get_event_loop().run_until_complete(client.connect())
+        asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
+
+        # Send alert to MySQL database
+        alerting_module.send_alert_to_database(Inst, message, "performance", performance, fechahora)
+
     return values
 
 
@@ -61,61 +83,3 @@ def start_mqtt_client(broker_address, broker_port, topic, callback):
     client.subscribe(topic)
     client.loop_forever()
 
-
-'''
-import json
-import paho.mqtt.client as mqtt
-import mysql_module
-import alerting_module
-
-
-def process_message(received_json):
-    fechahora = received_json.get("FechaHora", None)
-    G = received_json.get("G", None)
-    Tc = received_json.get("Tc", None)
-    I = received_json.get("I", None)
-    V = received_json.get("V", None)
-    P = received_json.get("P", None)
-    Inst = received_json.get("Inst", None)
-    values = (fechahora, G, Tc, I, V, P, Inst)
-    return values
-
-def on_message(client, userdata, message):
-    # Nachricht im JSON-Format empfangen
-
-    received_message = message.payload.decode('utf-8')
-
-
-    # Die Nachricht in separate JSON-Objekte aufteilen (Annahme: Nachrichten sind durch Zeilenumbrüche getrennt)
-    json_objects = received_message.strip().split('\n')
-
-    # Jedes JSON-Objekt einzeln verarbeiten
-    for json_str in json_objects:
-        # JSON-Objekt laden
-        received_json = json.loads(json_str)
-        print("Empfangene Nachricht:", received_json)
-
-        # Process the JSON and get the values
-        values = process_message(received_json)
-
-        # Send the values to the MySQL database
-        mysql_module.send_to_mysql_raw(values, "INSERT INTO pycharm_table (FechaHora, G, Tc, I, V, P, Inst) VALUES (%s, %s, %s, %s, %s, %s, %s)")
-        print("Timestamp before MySQL operation:", values[0])
-        # Hier kannst du die weiteren Schritte für die Verarbeitung der JSON-Daten einfügen
-
-
-        alerts = alerting_module.check_threshold(values)
-        print(alerts)
-
-        # check_threshold(values) # Assuming you have a check_threshold function
-
-def get_message(self):
-    return self.received_message
-
-
-def start_mqtt_client(broker_address, broker_port, topic):
-    client = mqtt.Client()
-    client.on_message = on_message
-    client.connect(broker_address, broker_port)
-    client.subscribe(topic)
-    client.loop_forever() '''
