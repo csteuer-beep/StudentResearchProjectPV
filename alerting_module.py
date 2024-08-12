@@ -95,7 +95,25 @@ def send_alert_to_database(sensor_id, message, parameter, cuvalue, timestamp):
     values = (alert_id, sensor_id, timestamp, alert_type, message, alert_status, first_occurrence_timestamp, last_occurrence_timestamp, parameter, cuvalue)
     mysql_module.insert_to_mysql_alert(values, insert_query)
 
+def handle_offline_alert(G, Tc, fechahora, Inst):
+    # Check if the sensor is offline
+    if G is not None and G < 10:
+        # Create the alert message
+        message = f"G, Tc sensor is offline. G: {G} , Tc: {Tc}"
+        websocket_message = generate_alertjson("G/Tc", 1, message, G, fechahora, Inst)
 
+        try:
+            # Send alert via WebSocket
+            asyncio.get_event_loop().run_until_complete(client.connect())
+            asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
+        except Exception as e:
+            print(f"WebSocket error: {e}")
+
+        try:
+            # Send alert to MySQL database
+            send_alert_to_database(Inst, message, "G/Tc", 0, fechahora)
+        except Exception as e:
+            print(f"MySQL error: {e}")
 
 def generate_alert_id():
     return str(uuid.uuid4())

@@ -41,24 +41,9 @@ def process_message(received_json):
 
     values = (fechahora, G, Tc, I, V, P, Inst, performance, loss)
 
-    alert_value1 = 1 if G is not None and G < 10 else 0
+    alerting_module.handle_offline_alert(G, Tc, fechahora, Inst)
     alert_value2 = 1 if P is not None and new_value != 0 and abs((new_value - P) / new_value) > 0.25 else 0
 
-    if alert_value1 == 1 :
-        message = f"G, Tc sensor is offline. G: {G} , Tc:  {Tc}"
-        websocket_message = alerting_module.generate_alertjson("G/Tc", 1, message, G, fechahora,
-                                                               Inst)
-
-        try:
-            asyncio.get_event_loop().run_until_complete(client.connect())
-            asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
-        except Exception as e:
-            print(f"WebSocket error: {e}")
-
-        try:
-            alerting_module.send_alert_to_database(Inst, message, "G/Tc", 0, fechahora)
-        except Exception as e:
-            print(f"MySQL error: {e}")
 
 
     return values
