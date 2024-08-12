@@ -46,7 +46,7 @@ def process_message(received_json):
 
     if alert_value1 == 1 :
         message = f"G, Tc sensor is offline. G: {G} , Tc:  {Tc}"
-        websocket_message = alerting_module.generate_alertjson("Sensor Offline", 1, message, G, fechahora,
+        websocket_message = alerting_module.generate_alertjson("G/Tc", 1, message, G, fechahora,
                                                                Inst)
 
         try:
@@ -56,7 +56,7 @@ def process_message(received_json):
             print(f"WebSocket error: {e}")
 
         try:
-            alerting_module.send_alert_to_database(Inst, message, "Sensor Offline", 0, fechahora)
+            alerting_module.send_alert_to_database(Inst, message, "G/Tc", 0, fechahora)
         except Exception as e:
             print(f"MySQL error: {e}")
 
