@@ -73,7 +73,8 @@ def check_threshold(values):
 
     # Handle the second value alert (alert_value2)
     if P is not None and P1 != 0 and abs((P1 - P) / P1) > 0.25:
-        handle_alert_value2(P, P1, timestamp, Inst)
+        print(f"--------Handle Vlaue 2 P: {P}, P1: {P1}, Alarm Condition: {abs((P1 - P) / P1)}--------")
+        handle_alert_value2(P*1000, P1, timestamp, Inst)
 
     for i in range(1, 6):
         value = values[i]
@@ -118,6 +119,10 @@ def handle_alert_value2(P, new_value, timestamp, Inst):
         send_alert_to_database(Inst, message, "P", P, timestamp)
     except Exception as e:
         print(f"MySQL error: {e}")
+
+    print(f"--------Handle Vlaue 2 P: {P}, Expected: {new_value}--------")
+
+
 
 def generate_alertjson(parameter, threshold, message, value, timestamp, inst):
     data = {
