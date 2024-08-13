@@ -72,9 +72,10 @@ def check_threshold(values):
     handle_offline_alert(G, Tc, timestamp, Inst)
 
     # Handle the second value alert (alert_value2)
-    if P is not None and performance != 0 and abs((performance - P) / performance) > 0.25:
-        print(f"--------Handle Vlaue 2 P: {P}, performance: {performance}, Alarm Condition: {abs((performance - P) / performance)}--------")
-        handle_alert_value2(P, performance, timestamp, Inst)
+    alertvalue2 = abs((performance - P) / performance)
+    if P is not None and performance != 0 and alertvalue2 > 0.25:
+        print(f"--------Handle Value 2 P: {P}, performance: {performance}, Alarm Condition: {alertvalue2}--------")
+        handle_alert_value2(P, alertvalue2, timestamp, Inst)
 
     for i in range(1, 6):
         value = values[i]
@@ -104,27 +105,25 @@ def check_threshold(values):
 
     return alerts
 
-def handle_alert_value2(P, new_value, timestamp, Inst):
+def handle_alert_value2(P, new_value, timestamp, Inst, Closing):
     P=P*1000
     message = f"Alert: Significant deviation detected. P: {P}, Expected: {new_value}"
     websocket_message = generate_alertjson("P", 0.25, message, P, timestamp, Inst)
-
-    try:
-        asyncio.get_event_loop().run_until_complete(client.connect())
-        asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
-    except Exception as e:
-        print(f"WebSocket error: {e}")
+    if not Closing:
+        try:
+            asyncio.get_event_loop().run_until_complete(client.connect())
+            asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
+        except Exception as e:
+           print(f"WebSocket error: {e}")
 
     try:
         existing_alert = mysql_module.get_open_alert_id(Inst, "DE")
         if existing_alert is not None:
             # print(f"An open alert with AlertID {existing_alert} already exists")
-            handle_existing_alert(existing_alert, timestamp, P)
+            handle_existing_alert(existing_alert, timestamp, new_value, Closing)
         else:
             handle_new_alert(Inst, message, "DE", P, timestamp)
 
-
-        send_alert_to_database(Inst, message, "DE", P, timestamp)
     except Exception as e:
         print(f"MySQL error: {e}")
 
