@@ -6,6 +6,7 @@ import paho.mqtt.client as mqtt
 import alerting_module
 import os
 
+
 def process_message(received_json):
     fechahora = received_json.get("FechaHora", None)
     G = received_json.get("G", None)
@@ -41,8 +42,6 @@ def process_message(received_json):
     alerting_module.handle_offline_alert(G, Tc, fechahora, Inst)
     alert_value2 = 1 if P is not None and new_value != 0 and abs((new_value - P) / new_value) > 0.25 else 0
 
-
-
     return values
 
 
@@ -71,6 +70,7 @@ def start_mqtt_client(broker_address, broker_port, topic, callback):
 
 def connection_exists(file_path):
     return os.path.exists(file_path)
+
 
 def create_connection_file(file_path):
     with open(file_path, 'w') as f:
