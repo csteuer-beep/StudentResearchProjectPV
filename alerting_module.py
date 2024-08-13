@@ -44,7 +44,7 @@ def handle_offline_alert(G, Tc, fechahora, Inst):
             else:
                 handle_new_alert(Inst, message, "G/Tc", "to low", fechahora)
 
-            send_alert_to_database(Inst, message, "G/Tc", 0, fechahora)
+
         except Exception as e:
             print(f"MySQL error: {e}")
 
@@ -64,16 +64,16 @@ def check_threshold(values):
 
     # Calculate new_value, performance, and loss
     vv = 5.5 if Inst == "etsist1" else 4.8 if Inst == "etsist2" else 0
-    new_value = G * vv * (1 - 0.0035 * (Tc - 25)) if G is not None else 0
-    performance = new_value / 1000
+    P1 = G * vv * (1 - 0.0035 * (Tc - 25)) if G is not None else 0
+    performance = P1 / 1000
     loss = max(0, P - performance) if P is not None else performance
 
     # Handle offline alert
     handle_offline_alert(G, Tc, timestamp, Inst)
 
     # Handle the second value alert (alert_value2)
-    if P is not None and new_value != 0 and abs((new_value - P) / new_value) > 0.25:
-        handle_alert_value2(P, new_value, timestamp, Inst)
+    if P is not None and P1 != 0 and abs((P1 - P) / P1) > 0.25:
+        handle_alert_value2(P, P1, timestamp, Inst)
 
     for i in range(1, 6):
         value = values[i]

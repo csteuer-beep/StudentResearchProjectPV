@@ -24,23 +24,14 @@ def process_message(received_json):
         # Format back to string if needed, e.g., fechahora = fechahora_dt.strftime("%Y-%m-%dT%H:%M:%S")
         fechahora = fechahora_dt.isoformat()
 
-    new_value = 0
-    vv = 0
-    if Inst == "etsist1":
-        vv = 5.5
-    if Inst == "etsist2":
-        vv = 4.8
-    new_value = G * vv * (1 - 0.0035 * (Tc - 25))
+
+    # Calculate new_value, performance, and loss
+    vv = 5.5 if Inst == "etsist1" else 4.8 if Inst == "etsist2" else 0
+    new_value = G * vv * (1 - 0.0035 * (Tc - 25)) if G is not None else 0
     performance = new_value / 1000
-    try:
-        loss = max(0, P - performance) if P is not None else 0
-    except Exception as e:
-        loss = performance
+    loss = max(0, P - performance) if P is not None else performance
 
     values = (fechahora, G, Tc, I, V, P, Inst, performance, loss)
-
-    alerting_module.handle_offline_alert(G, Tc, fechahora, Inst)
-    alert_value2 = 1 if P is not None and new_value != 0 and abs((new_value - P) / new_value) > 0.25 else 0
 
     return values
 
