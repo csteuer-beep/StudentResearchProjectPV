@@ -86,7 +86,7 @@ def check_threshold(values):
                 existing_alert = mysql_module.get_open_alert_id(Inst, parameter)
 
                 if existing_alert is not None:
-                    print(f"An open alert with AlertID {existing_alert} already exists")
+                   # print(f"An open alert with AlertID {existing_alert} already exists")
                     handle_existing_alert(existing_alert, timestamp, value)
                 else:
                     handle_new_alert(Inst, message, parameter, value, timestamp)
@@ -98,12 +98,13 @@ def check_threshold(values):
                 existing_alert = mysql_module.get_open_alert_id(Inst, parameter)
 
                 if existing_alert is not None:
-                    print(f"An open alert with AlertID {existing_alert} already exists")
+                    #print(f"An open alert with AlertID {existing_alert} already exists")
                     handle_existing_alert(existing_alert, timestamp, value, closing=True)
 
     return alerts
 
 def handle_alert_value2(P, new_value, timestamp, Inst):
+    P=P*1000
     message = f"Alert: Significant deviation detected. P: {P}, Expected: {new_value}"
     websocket_message = generate_alertjson("P", 0.25, message, P, timestamp, Inst)
 

@@ -84,10 +84,10 @@ def get_open_alert_id(inst, parameter):
         if result:
             alert_id = str(result[0])
             alert_id = alert_id.strip("(),'\"")
-            print("alertid: ", alert_id)
+            #print("alertid: ", alert_id)
             return alert_id
         else:
-            print("Kein offener Alert mit übereinstimmendem Inst- und Parameter-Wert gefunden")
+            #print("Kein offener Alert mit übereinstimmendem Inst- und Parameter-Wert gefunden")
             return None
 
     except mysql.connector.Error as e:
