@@ -72,9 +72,9 @@ def check_threshold(values):
     handle_offline_alert(G, Tc, timestamp, Inst)
 
     # Handle the second value alert (alert_value2)
-    if P is not None and P1 != 0 and abs((P1 - P) / P1) > 0.25:
-        print(f"--------Handle Vlaue 2 P: {P}, P1: {P1}, Alarm Condition: {abs((P1 - P) / P1)}--------")
-        handle_alert_value2(P*1000, P1, timestamp, Inst)
+    if P is not None and performance != 0 and abs((performance - P) / performance) > 0.25:
+        print(f"--------Handle Vlaue 2 P: {P}, performance: {performance}, Alarm Condition: {abs((performance - P) / performance)}--------")
+        handle_alert_value2(P, performance, timestamp, Inst)
 
     for i in range(1, 6):
         value = values[i]
@@ -116,7 +116,15 @@ def handle_alert_value2(P, new_value, timestamp, Inst):
         print(f"WebSocket error: {e}")
 
     try:
-        send_alert_to_database(Inst, message, "P", P, timestamp)
+        existing_alert = mysql_module.get_open_alert_id(Inst, "DE")
+        if existing_alert is not None:
+            # print(f"An open alert with AlertID {existing_alert} already exists")
+            handle_existing_alert(existing_alert, timestamp, P)
+        else:
+            handle_new_alert(Inst, message, "DE", P, timestamp)
+
+
+        send_alert_to_database(Inst, message, "DE", P, timestamp)
     except Exception as e:
         print(f"MySQL error: {e}")
 
