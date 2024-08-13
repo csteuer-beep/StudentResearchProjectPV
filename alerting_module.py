@@ -37,6 +37,13 @@ def handle_offline_alert(G, Tc, fechahora, Inst):
             print(f"WebSocket error: {e}")
 
         try:
+            existing_alert = mysql_module.get_open_alert_id(Inst, "G/Tc")
+            if existing_alert is not None:
+                print(f"An open alert with AlertID {existing_alert} already exists")
+                handle_existing_alert(existing_alert, fechahora, "to low")
+            else:
+                handle_new_alert(Inst, message, "G/Tc", "to low", fechahora)
+
             send_alert_to_database(Inst, message, "G/Tc", 0, fechahora)
         except Exception as e:
             print(f"MySQL error: {e}")
