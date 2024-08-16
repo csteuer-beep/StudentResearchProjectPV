@@ -121,8 +121,8 @@ def check_threshold(values):
 
 def handle_alert_value2(P, new_value, timestamp, Inst, Closing):
     P = P * 1000
-    message = f"Alert: Significant deviation detected. P: {P}, Expected: {new_value}"
-    websocket_message = generate_alertjson("P", 0.25, message, P, timestamp, Inst)
+    message = f"Alert: Significant deviation detected : {new_value}"
+    websocket_message = generate_alertjson("DE", 0.25, message, P, timestamp, Inst)
     if not Closing:
         try:
             asyncio.get_event_loop().run_until_complete(client.connect())
