@@ -138,11 +138,11 @@ def handle_alert_value2(P, new_value, timestamp, Inst, Closing):
             # If an existing alert is found, update or close it based on the Closing flag
             if Closing:
                 # Mark the alert as closed in the database
-                handle_existing_alert(existing_alert, timestamp, new_value, Closing=True)
+                handle_existing_alert(existing_alert, timestamp, new_value, True)
                 print(f"Alert ID {existing_alert} closed.")
             else:
                 # Update the existing alert with new values
-                handle_existing_alert(existing_alert, timestamp, new_value, Closing=False)
+                handle_existing_alert(existing_alert, timestamp, new_value, False)
                 print(f"Alert ID {existing_alert} updated with new value.")
         elif not Closing:
             # Only create a new alert if we're not closing the current alert
