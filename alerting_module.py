@@ -9,9 +9,11 @@ import mysql_module
 uri = "ws://localhost:8765/alerts"
 client = websocket_handler.WebSocketClient(uri)
 
+
 def get_parameter_name(index):
     parameters = ["", "G", "Tc", "I", "V", "P"]
     return parameters[index]
+
 
 def handle_existing_alert(alert_id, timestamp, value, closing=False):
     if closing:
@@ -21,9 +23,11 @@ def handle_existing_alert(alert_id, timestamp, value, closing=False):
         mysql_module.update_field("Alerts", "LastOccurrenceTimestamp", timestamp, "AlertID", alert_id)
         mysql_module.update_field("Alerts", "Currentvalue", value, "AlertID", alert_id)
 
+
 def handle_new_alert(sensor_id, message, parameter, cuvalue, timestamp):
     print("No open alert with matching instance and parameter value found")
     send_alert_to_database(sensor_id, message, parameter, cuvalue, timestamp)
+
 
 def handle_offline_alert(G, Tc, fechahora, Inst):
     if G is not None and G < 10:
@@ -48,8 +52,10 @@ def handle_offline_alert(G, Tc, fechahora, Inst):
         except Exception as e:
             print(f"MySQL error: {e}")
 
+
 def generate_alert_id():
     return str(uuid.uuid4())
+
 
 def check_threshold(values):
     asyncio.get_event_loop().run_until_complete(client.connect())
@@ -71,13 +77,18 @@ def check_threshold(values):
     # Handle offline alert
     handle_offline_alert(G, Tc, timestamp, Inst)
 
-    # Handle the second value alert (alert_value2)
-    if P is not None: alertvalue2 = abs((performance - P) / performance)
-    if P is not None and performance != 0 and alertvalue2 > 0.25:
-        print(f"--------Handle Value 2 P: {P}, performance: {performance}, Alarm Condition: {alertvalue2}--------")
-        handle_alert_value2(P, alertvalue2, timestamp, Inst, False)
-    else:
-        handle_alert_value2(P, alertvalue2, timestamp, Inst, True)
+    try:
+        if P is not None:
+            alertvalue2 = abs((performance - P) / performance)
+            if P is not None and performance != 0 and alertvalue2 > 0.25:
+                print(
+                    f"--------Handle Value 2 P: {P}, performance: {performance}, Alarm Condition: {alertvalue2}--------")
+                handle_alert_value2(P, alertvalue2, timestamp, Inst, False)
+            else:
+                handle_alert_value2(P, alertvalue2, timestamp, Inst, True)
+    except Exception as e:
+        print(f"Error calculating alertvalue2: {e}")
+       # handle_alert_value2(P, None, timestamp, Inst, True)
 
     for i in range(1, 6):
         value = values[i]
@@ -90,7 +101,7 @@ def check_threshold(values):
                 existing_alert = mysql_module.get_open_alert_id(Inst, parameter)
 
                 if existing_alert is not None:
-                   # print(f"An open alert with AlertID {existing_alert} already exists")
+                    # print(f"An open alert with AlertID {existing_alert} already exists")
                     handle_existing_alert(existing_alert, timestamp, value)
                 else:
                     handle_new_alert(Inst, message, parameter, value, timestamp)
@@ -102,13 +113,14 @@ def check_threshold(values):
                 existing_alert = mysql_module.get_open_alert_id(Inst, parameter)
 
                 if existing_alert is not None:
-                    #print(f"An open alert with AlertID {existing_alert} already exists")
+                    # print(f"An open alert with AlertID {existing_alert} already exists")
                     handle_existing_alert(existing_alert, timestamp, value, closing=True)
 
     return alerts
 
+
 def handle_alert_value2(P, new_value, timestamp, Inst, Closing):
-    P=P*1000
+    P = P * 1000
     message = f"Alert: Significant deviation detected. P: {P}, Expected: {new_value}"
     websocket_message = generate_alertjson("P", 0.25, message, P, timestamp, Inst)
     if not Closing:
@@ -116,7 +128,7 @@ def handle_alert_value2(P, new_value, timestamp, Inst, Closing):
             asyncio.get_event_loop().run_until_complete(client.connect())
             asyncio.get_event_loop().run_until_complete(client.send_message(websocket_message))
         except Exception as e:
-           print(f"WebSocket error: {e}")
+            print(f"WebSocket error: {e}")
 
     try:
         existing_alert = mysql_module.get_open_alert_id(Inst, "DE")
@@ -132,7 +144,6 @@ def handle_alert_value2(P, new_value, timestamp, Inst, Closing):
     print(f"--------Handle Vlaue 2 P: {P}, Expected: {new_value}--------")
 
 
-
 def generate_alertjson(parameter, threshold, message, value, timestamp, inst):
     data = {
         "Timestamp": timestamp,
@@ -144,6 +155,7 @@ def generate_alertjson(parameter, threshold, message, value, timestamp, inst):
     }
 
     return json.dumps(data)
+
 
 def send_alert_to_database(sensor_id, message, parameter, cuvalue, timestamp):
     print("Timestamp before MySQL operation:", timestamp)
@@ -160,10 +172,9 @@ def send_alert_to_database(sensor_id, message, parameter, cuvalue, timestamp):
     (AlertID, SensorID, Timestamp, AlertType, AlertMessage, AlertStatus, FirstOccurrenceTimestamp, LastOccurrenceTimestamp, Parameter, CurrentValue) 
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
-    values = (alert_id, sensor_id, timestamp, alert_type, message, alert_status, first_occurrence_timestamp, last_occurrence_timestamp, parameter, cuvalue)
+    values = (alert_id, sensor_id, timestamp, alert_type, message, alert_status, first_occurrence_timestamp,
+              last_occurrence_timestamp, parameter, cuvalue)
     mysql_module.insert_to_mysql_alert(values, insert_query)
-
-
 
 # alert_module.py
 # import asyncio
