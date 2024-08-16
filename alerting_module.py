@@ -72,7 +72,7 @@ def check_threshold(values):
     handle_offline_alert(G, Tc, timestamp, Inst)
 
     # Handle the second value alert (alert_value2)
-    alertvalue2 = abs((performance - P) / performance)
+    if P is not None: alertvalue2 = abs((performance - P) / performance)
     if P is not None and performance != 0 and alertvalue2 > 0.25:
         print(f"--------Handle Value 2 P: {P}, performance: {performance}, Alarm Condition: {alertvalue2}--------")
         handle_alert_value2(P, alertvalue2, timestamp, Inst, False)
