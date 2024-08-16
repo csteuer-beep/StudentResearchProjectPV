@@ -131,20 +131,28 @@ def handle_alert_value2(P, new_value, timestamp, Inst, Closing):
             print(f"WebSocket error: {e}")
 
     try:
-        # Check for existing alerts
+        # Check for existing alert
         existing_alert = mysql_module.get_open_alert_id(Inst, "DE")
 
         if existing_alert is not None:
-            # If an existing alert is found, handle it according to the Closing flag
-            handle_existing_alert(existing_alert, timestamp, new_value, Closing)
+            # If an existing alert is found, update or close it based on the Closing flag
+            if Closing:
+                # Mark the alert as closed in the database
+                handle_existing_alert(existing_alert, timestamp, new_value, Closing=True)
+                print(f"Alert ID {existing_alert} closed.")
+            else:
+                # Update the existing alert with new values
+                handle_existing_alert(existing_alert, timestamp, new_value, Closing=False)
+                print(f"Alert ID {existing_alert} updated with new value.")
         elif not Closing:
             # Only create a new alert if we're not closing the current alert
             handle_new_alert(Inst, message, "DE", P, timestamp)
+            print("New alert created.")
 
     except Exception as e:
         print(f"MySQL error: {e}")
 
-    print(f"--------Handle Vlaue 2 P: {P}, Expected: {new_value}--------")
+    print(f"--------Handle Vlaue 2 triggert, Value: {new_value}--------")
 
 
 def generate_alertjson(parameter, threshold, message, value, timestamp, inst):
