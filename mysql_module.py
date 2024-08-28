@@ -180,6 +180,33 @@ def insert_aggregated_data(values):
             connection.close()
             print("Database connection closed(insert_aggregated_data)")
 
+def get_efficiency_coefficient(facility_name):
+    connection = connect_to_database()
+    if connection is None:
+        print("Failed to establish database connection")
+        return None
+
+    try:
+        cursor = connection.cursor()
+        query = "SELECT eff_coeff FROM Facilities WHERE inst = %s"
+        cursor.execute(query, (facility_name,))
+        result = cursor.fetchone()
+
+        if result:
+            return result[0]
+        else:
+            print(f"No efficiency coefficient found for facility '{facility_name}'")
+            return None
+
+    except Error as e:
+        print(f"Error during database operation(get_efficiency_coefficient): {e}")
+        return None
+
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("Database connection closed(get_efficiency_coefficient)")
 
 '''import mysql.connector
 from mysql.connector import Error
