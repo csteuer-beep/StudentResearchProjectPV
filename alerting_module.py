@@ -69,12 +69,8 @@ def check_threshold(values):
     Tc = values[2]
     P = values[5]
 
-    coef = get_efficiency_coefficient(Inst)
-    # vv = efficiency coefficient
-    # Calculate new_value, performance, and loss
-    #vv = 5.5 if Inst == "etsist1" else 4.8 if Inst == "etsist2" else 0
-    P1 = G * Decimal(coef) * (Decimal(1) - Decimal('0.0035') * (Tc - Decimal(25))) if G is not None and coef is not None else 0
-    #P1 = G * vv * (1 - 0.0035 * (Tc - 25)) if G is not None else 0
+    coef = mysql_module.get_efficiency_coefficient(Inst)
+    P1 = G * float(Decimal(coef)) * (1 - 0.0035 * (Tc - 25)) if G is not None and coef is not None else 0
     performance = P1 / 1000
     loss = max(0, P - performance) if P is not None else performance
 
