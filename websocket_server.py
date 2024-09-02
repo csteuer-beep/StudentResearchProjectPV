@@ -1,12 +1,13 @@
 import asyncio
 import websockets
-import main_month_agg
 
 # Lists to keep track of connected clients
 alerts_clients = set()
 test_clients = set()
 command_clients = set()
 
+# Handler for each path
+# Handler for /alerts
 async def alerts_handler(websocket, path):
     alerts_clients.add(websocket)
     try:
@@ -16,6 +17,7 @@ async def alerts_handler(websocket, path):
     finally:
         alerts_clients.remove(websocket)
 
+# Handler for /test
 async def test_handler(websocket, path):
     test_clients.add(websocket)
     try:
@@ -25,6 +27,7 @@ async def test_handler(websocket, path):
     finally:
         test_clients.remove(websocket)
 
+# Handler for /command
 async def command_handler(websocket, path):
     command_clients.add(websocket)
     try:
@@ -34,11 +37,13 @@ async def command_handler(websocket, path):
     finally:
         command_clients.remove(websocket)
 
+# Broadcast the message to all clients
 async def broadcast(message, clients):
     for client in clients:
         if client.open:
             await client.send(message)
 
+# Main handler to determine the path
 async def main_handler(websocket, path):
     if path == "/alerts":
         await alerts_handler(websocket, path)

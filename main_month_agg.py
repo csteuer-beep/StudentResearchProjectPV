@@ -1,11 +1,12 @@
 # main_month_agg.py
-
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, sum, mean, min, max
 import mysql_module
 import uuid
 
 
+# Main function to aggregate data
+# Fetches raw data from MySQL, aggregates it and inserts the aggregated data back to MySQL
 def main(month, year):
     # Initialize Spark session
     spark = SparkSession.builder \
@@ -41,6 +42,8 @@ def main(month, year):
             min("I").alias("MinOfI"),
             mean("I").alias("MeanOfI"),
             max("V").alias("MaxOfV"),
+
+
             min("V").alias("MinOfV"),
             mean("V").alias("MeanOfV"),
             max("G").alias("MaxOfG"),

@@ -1,12 +1,15 @@
 # mqtt_module.py
-import asyncio
-from datetime import datetime, timedelta
 import json
-import paho.mqtt.client as mqtt
-import alerting_module
 import os
+from datetime import datetime, timedelta
+from decimal import Decimal
+
+import paho.mqtt.client as mqtt
+
+import mysql_module
 
 
+# Function to process the received JSON message splitting it into individual values
 def process_message(received_json):
     fechahora = received_json.get("FechaHora", None)
     G = received_json.get("G", None)
@@ -15,6 +18,8 @@ def process_message(received_json):
     V = received_json.get("V", None)
     P = received_json.get("P", None)
     Inst = received_json.get("Inst", None)
+
+    # Convert the date-time string to UTC+0
 
     if fechahora:
         # Parse the date-time string into a datetime object
@@ -25,17 +30,17 @@ def process_message(received_json):
         fechahora = fechahora_dt.isoformat()
 
 
-    # Calculate new_value, performance, and loss
-    vv = 5.5 if Inst == "etsist1" else 4.8 if Inst == "etsist2" else 0
-    new_value = G * vv * (1 - 0.0035 * (Tc - 25)) if G is not None else 0
-    performance = new_value / 1000
+    # Calculate performance and loss
+    coef = mysql_module.get_efficiency_coefficient(Inst)
+    performance = G * float(Decimal(coef)) * (1 - 0.0035 * (Tc - 25)) if G is not None and coef is not None else 0
+    performance /= 1000
     loss = max(0, P - performance) if P is not None else performance
 
     values = (fechahora, G, Tc, I, V, P, Inst, performance, loss)
 
     return values
 
-
+# Function to handle the received MQTT message
 def on_message(client, userdata, message):
     received_message = message.payload.decode('utf-8')
     json_objects = received_message.strip().split('\n')

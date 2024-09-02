@@ -15,5 +15,3 @@ if __name__ == "__main__":
     broker_port = 1883
     topic = "pv/data"
     mqtt_handler.start_mqtt_client(broker_address, broker_port, topic, save_to_db)
-
-# Problem ist irgendwie, dass zwei mal mqtt broker verbunden wird?
