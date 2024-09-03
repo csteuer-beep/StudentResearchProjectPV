@@ -1,11 +1,11 @@
 # alert_module.py
 import asyncio
-import datetime
-import uuid
 import json
-import websocket_handler
-import mysql_module
+import uuid
 from decimal import Decimal
+
+import mysql_module
+import websocket_handler
 
 uri = "ws://localhost:8765/alerts"
 client = websocket_handler.WebSocketClient(uri)
@@ -64,14 +64,14 @@ def generate_alert_id():
 def check_threshold(values):
     asyncio.get_event_loop().run_until_complete(client.connect())
     # Thresholds for G, Tc, I, V, P
-    thresholds = (20, 20, 20, 20, 20)
+    thresholds = (3000, 75, 100, 430, 6)
     alerts = []
     # Extract values from the list
     timestamp = values[0]
-    Inst = values[6]
     G = values[1]
     Tc = values[2]
     P = values[5]
+    Inst = values[6]
 
     # Calculate performance and loss with provided equation
     coef = mysql_module.get_efficiency_coefficient(Inst)

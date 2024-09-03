@@ -1,8 +1,10 @@
 # main_month_agg.py
+import uuid
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, sum, mean, min, max
+
 import mysql_module
-import uuid
 
 
 # Main function to aggregate data
