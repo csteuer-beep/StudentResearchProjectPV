@@ -20,7 +20,7 @@ def process_message(received_json):
     Inst = received_json.get("Inst", None)
 
     # Convert the date-time string to UTC+0
-
+    # Necessary to prevent incorrect representations in Grafana
     if fechahora:
         # Parse the date-time string into a datetime object
         fechahora_dt = datetime.strptime(fechahora, "%Y-%m-%dT%H:%M:%S")
