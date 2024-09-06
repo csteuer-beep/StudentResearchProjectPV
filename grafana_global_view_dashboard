@@ -202,7 +202,7 @@
         "x": 4,
         "y": 1
       },
-      "id": 12,
+      "id": 19,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -229,7 +229,7 @@
           "editorMode": "code",
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT g, V, I, P, Loss, FechaHora, Inst FROM solarplant_db.Solarplant_Raw Where Inst in (${Inst:sqlstring}) AND $__timeFilter(FechaHora) ORDER BY FechaHora DESC;\r\n",
+          "rawSql": "SELECT g, V, I, P, Loss, FechaHora, Tc, Inst FROM solarplant_db.Solarplant_Raw Where Inst in (${Inst:sqlstring}) AND $__timeFilter(FechaHora) ORDER BY FechaHora DESC;\r\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -250,7 +250,7 @@
           }
         }
       ],
-      "title": "Irradiance in W/m²",
+      "title": "Irradiance in kW/m²",
       "transformations": [
         {
           "id": "groupBy",
@@ -318,7 +318,7 @@
         "x": 7,
         "y": 1
       },
-      "id": 15,
+      "id": 18,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -341,22 +341,16 @@
             "type": "datasource",
             "uid": "-- Dashboard --"
           },
-          "panelId": 12,
+          "panelId": 19,
           "refId": "A"
         }
       ],
-      "title": "Current in A",
+      "title": "Voltage in V",
       "transformations": [
         {
           "id": "groupBy",
           "options": {
             "fields": {
-              "I": {
-                "aggregations": [
-                  "first"
-                ],
-                "operation": "aggregate"
-              },
               "Inst": {
                 "aggregations": [],
                 "operation": "groupby"
@@ -364,7 +358,8 @@
               "V": {
                 "aggregations": [
                   "first"
-                ]
+                ],
+                "operation": "aggregate"
               },
               "g": {
                 "aggregations": [
@@ -417,7 +412,7 @@
         "x": 4,
         "y": 4
       },
-      "id": 13,
+      "id": 20,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -440,16 +435,22 @@
             "type": "datasource",
             "uid": "-- Dashboard --"
           },
-          "panelId": 12,
+          "panelId": 19,
           "refId": "A"
         }
       ],
-      "title": "Voltage in V",
+      "title": "Current in A",
       "transformations": [
         {
           "id": "groupBy",
           "options": {
             "fields": {
+              "I": {
+                "aggregations": [
+                  "first"
+                ],
+                "operation": "aggregate"
+              },
               "Inst": {
                 "aggregations": [],
                 "operation": "groupby"
@@ -457,8 +458,7 @@
               "V": {
                 "aggregations": [
                   "first"
-                ],
-                "operation": "aggregate"
+                ]
               },
               "g": {
                 "aggregations": [
@@ -498,7 +498,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "semi-dark-blue",
+                "color": "semi-dark-red",
                 "value": null
               }
             ]
@@ -512,7 +512,7 @@
         "x": 7,
         "y": 4
       },
-      "id": 16,
+      "id": 21,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -535,7 +535,7 @@
             "type": "datasource",
             "uid": "-- Dashboard --"
           },
-          "panelId": 12,
+          "panelId": 19,
           "refId": "A"
         }
       ],
@@ -1076,10 +1076,12 @@
         "current": {
           "selected": true,
           "text": [
-            "ETSIST2"
+            "ETSIST2",
+            "ETSIST1"
           ],
           "value": [
-            "ETSIST2"
+            "ETSIST2",
+            "ETSIST1"
           ]
         },
         "hide": 0,
@@ -1093,7 +1095,7 @@
             "value": "$__all"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "ETSIST1",
             "value": "ETSIST1"
           },
