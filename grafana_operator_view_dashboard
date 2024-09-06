@@ -814,7 +814,7 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 7,
+        "w": 12,
         "x": 12,
         "y": 8
       },
@@ -1048,13 +1048,20 @@
           "id": "groupBy",
           "options": {
             "fields": {
+              "FechaHora": {
+                "aggregations": [
+                  "last",
+                  "firstNotNull",
+                  "first"
+                ]
+              },
               "Inst": {
                 "aggregations": [],
                 "operation": "groupby"
               },
               "Tc": {
                 "aggregations": [
-                  "last"
+                  "first"
                 ],
                 "operation": "aggregate"
               }
@@ -1062,6 +1069,7 @@
           }
         },
         {
+          "disabled": true,
           "id": "reduce",
           "options": {
             "reducers": [
@@ -1131,7 +1139,7 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 4,
+        "w": 8,
         "x": 4,
         "y": 11
       },
@@ -1184,124 +1192,6 @@
           }
         }
       ],
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "mysql",
-        "uid": "fdn696gyrfvggb"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 4,
-        "x": 8,
-        "y": 11
-      },
-      "id": 33,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "maxHeight": 600,
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.0.0",
-      "targets": [
-        {
-          "dataset": "test_jupyter_input",
-          "datasource": {
-            "type": "mysql",
-            "uid": "fdn696gyrfvggb"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "rawQuery": true,
-          "rawSql": "SELECT P, FechaHora, Inst FROM solarplant_db.Solarplant_Raw where Inst in (${Inst:sqlstring}) AND $__timeFilter(FechaHora) ; \r\n",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [
-                  {
-                    "name": "Tc",
-                    "type": "functionParameter"
-                  }
-                ],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "pycharm_table"
-        }
-      ],
-      "title": "Testing stuff",
       "type": "timeseries"
     },
     {
@@ -2466,12 +2356,10 @@
         "current": {
           "selected": true,
           "text": [
-            "ETSIST2",
-            "ETSIST1"
+            "ETSIST2"
           ],
           "value": [
-            "ETSIST2",
-            "ETSIST1"
+            "ETSIST2"
           ]
         },
         "hide": 0,
@@ -2485,7 +2373,7 @@
             "value": "$__all"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "ETSIST1",
             "value": "ETSIST1"
           },
@@ -2510,6 +2398,6 @@
   "timezone": "",
   "title": "Operator View",
   "uid": "edo1rzt1yw0e8e",
-  "version": 55,
+  "version": 56,
   "weekStart": ""
 }
