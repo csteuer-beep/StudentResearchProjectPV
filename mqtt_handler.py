@@ -1,6 +1,7 @@
 # mqtt_module.py
 import json
 import os
+import re
 from datetime import datetime, timedelta
 from decimal import Decimal
 
@@ -11,6 +12,35 @@ import mysql_module
 
 # Function to process the received JSON message splitting it into individual values
 def process_message(received_json):
+    def is_numeric(value):
+        return isinstance(value, (int, float, Decimal))
+
+    def matches_pattern(value, pattern):
+        return re.match(pattern, str(value)) is not None
+
+    # Define patterns for specific fields
+    patterns = {
+        "FechaHora": r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$",  # Example pattern for ISO datetime
+    }
+
+    processed_values = {}
+    for key, value in received_json.items():
+        if key == "FechaHora":
+            if not matches_pattern(value, patterns[key]):
+                processed_values[key] = None
+            else:
+                processed_values[key] = value
+        elif key == "Inst":
+            if not isinstance(value, str):
+                processed_values[key] = None
+            else:
+                processed_values[key] = value
+        else:
+            if not is_numeric(value):
+                processed_values[key] = None
+            else:
+                processed_values[key] = value
+
     fechahora = received_json.get("FechaHora", None)
     G = received_json.get("G", None)
     Tc = received_json.get("Tc", None)
