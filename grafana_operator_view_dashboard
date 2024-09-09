@@ -31,7 +31,6 @@
       },
       "id": 11,
       "panels": [],
-      "title": "Row title",
       "type": "row"
     },
     {
@@ -61,7 +60,7 @@
       "gridPos": {
         "h": 6,
         "w": 4,
-        "x": 2,
+        "x": 7,
         "y": 1
       },
       "id": 1,
@@ -204,7 +203,7 @@
       "gridPos": {
         "h": 6,
         "w": 4,
-        "x": 7,
+        "x": 11,
         "y": 1
       },
       "id": 2,
@@ -355,7 +354,7 @@
           }
         }
       ],
-      "title": "Irradiance in kW/m²",
+      "title": "Irradiance in W/m²",
       "transformations": [
         {
           "id": "groupBy",
@@ -644,7 +643,7 @@
           "refId": "A"
         }
       ],
-      "title": "Losses",
+      "title": "Losses (total) in kW",
       "transformations": [
         {
           "id": "groupBy",
@@ -888,7 +887,7 @@
           "table": "Solarplant_Raw"
         }
       ],
-      "title": "Performance / Losses (Total)",
+      "title": "Production / Losses in kW",
       "transformations": [
         {
           "id": "groupBy",
@@ -2356,9 +2355,11 @@
         "current": {
           "selected": true,
           "text": [
+            "ETSIST1",
             "ETSIST2"
           ],
           "value": [
+            "ETSIST1",
             "ETSIST2"
           ]
         },
@@ -2373,7 +2374,7 @@
             "value": "$__all"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "ETSIST1",
             "value": "ETSIST1"
           },
@@ -2398,6 +2399,6 @@
   "timezone": "",
   "title": "Operator View",
   "uid": "edo1rzt1yw0e8e",
-  "version": 56,
+  "version": 59,
   "weekStart": ""
 }
