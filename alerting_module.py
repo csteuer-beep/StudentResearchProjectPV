@@ -55,7 +55,14 @@ def handle_offline_alert(G, Tc, fechahora, Inst):
 
         except Exception as e:
             print(f"MySQL error: {e}")
-
+    elif G is not None and G > 10:
+        try:
+            existing_alert = mysql_module.get_open_alert_id(Inst, "G/Tc")
+            if existing_alert is not None:
+                handle_existing_alert(existing_alert, fechahora, "to high", closing=True)
+                print(f"Alert ID {existing_alert} closed.")
+        except Exception as e:
+            print(f"MySQL error: {e}")
 
 def generate_alert_id():
     return str(uuid.uuid4())
