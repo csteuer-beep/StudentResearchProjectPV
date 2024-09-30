@@ -103,23 +103,6 @@ CREATE TABLE `Solarplant_Raw` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `raw_testing`
---
-
-DROP TABLE IF EXISTS `raw_testing`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `raw_testing` (
-  `FechaHora` datetime DEFAULT NULL,
-  `G` float DEFAULT NULL,
-  `Tc` float DEFAULT NULL,
-  `I` float DEFAULT NULL,
-  `V` float DEFAULT NULL,
-  `P` float DEFAULT NULL,
-  `Inst` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
